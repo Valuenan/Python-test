@@ -1,0 +1,19 @@
+Task_1
+
+SELECT notebooks_brand.title, count(*) AS count_num
+FROM notebooks_brand
+    INNER JOIN notebooks_notebook ON notebooks_brand.id = notebooks_notebook.brand_id
+	GROUP BY  notebooks_brand.title
+	ORDER BY  count_num
+
+Task_2
+
+SELECT
+  COUNT(*),
+  ROUND(notebooks_notebook.width*2)/2 AS width,
+  ROUND(notebooks_notebook.depth*2)/2 AS depth_,
+  ROUND(notebooks_notebook.height*2)/2 AS height
+FROM notebooks_brand
+    INNER JOIN notebooks_notebook ON notebooks_brand.id = notebooks_notebook.brand_id
+  GROUP BY width, depth_, height
+  ORDER BY width, depth_, height

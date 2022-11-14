@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  rabbit:
+    image: rabbitmq:management-alpine
+    container_name: 'app_rabbit'
+    ports:
+      - "15672:15672"
+    environment:
+      TZ: Europe/Copenhagen
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    container_name: 'drf_test'
+    command: 'python manage.py runserver 0.0.0.0:8000'
+    environment:
+      - DATABASE_HOST=postgres
+    env_file:
+      - ./drf_test/.env
+    volumes:
+        - .:/drf_test
+    ports:
+      - '8000:8000'
+
+
+  celery:
+      build: .
+      container_name: 'celery'
+      command: celery -A drf_test worker -l info
+      volumes:
+        - .:/drf_test
+      links:
+        - redis
+      depends_on:
+        - web
+        - rebitmq
+  celery-beat:
+    build: .
+    command: celery -A drf_test beat -l info
+    volumes:
+      - .:/drf_test
